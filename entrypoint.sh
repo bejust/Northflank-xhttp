@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
 
-# 设置默认 UUID 和 xhttp 伪装路径
+# 设置默认 UUID、伪装路径和绑定的域名
 UUID=${UUID:-'de04add9-5c68-8bab-950c-08cd5320df18'}
 XHTTP_PATH=${XHTTP_PATH:-'/xhttp'}
+DOMAIN=${DOMAIN:-'northflank-us.cythb.tk'}
 
-# 替换 Nginx 配置文件里的伪装路径
+# 拼接 VLESS 分享链接
+VLESS_LINK="vless://${UUID}@${DOMAIN}:443?encryption=none&security=tls&sni=${DOMAIN}&type=xhttp&path=%2Fxhttp&mode=auto#${DOMAIN}-xhttp"
+
+# 替换 Nginx 配置文件里的路径和节点链接
 sed -i "s#XHTTP_PATH#${XHTTP_PATH}#g" /etc/nginx/nginx.conf
+sed -i "s#SUB_PATH#${UUID}#g" /etc/nginx/nginx.conf
+sed -i "s#SUB_LINK#${VLESS_LINK}#g" /etc/nginx/nginx.conf
 
 # 动态生成 Xray 的 xhttp 服务端配置
 cat <<EOF > /etc/xray_config.json
